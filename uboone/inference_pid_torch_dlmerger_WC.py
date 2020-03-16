@@ -42,7 +42,7 @@ def image_modify (img, cfg):
 
     return img_arr
 
-def main(IMAGE_FILE,VTX_FILE,OUT_DIR,CFG):
+def main(IMAGE_FILE,OUT_DIR,CFG):
     #
     # initialize
     #
@@ -51,11 +51,15 @@ def main(IMAGE_FILE,VTX_FILE,OUT_DIR,CFG):
 
     rd = ROOTData()
 
-    #NUM = int(os.path.basename(VTX_FILE).split(".")[0].split("_")[-1])
-    RUN    = os.path.basename(VTX_FILE).split(".")[0].split("_")[-1].split("-")[1]
-    SUBRUN = os.path.basename(VTX_FILE).split(".")[0].split("_")[-1].split("-")[2].split(".")[0]
-
-    FOUT = os.path.join(OUT_DIR,"multipid_out_%s_%s_pytorch.root" % (RUN,SUBRUN))
+    #NUM = str(os.path.basename(IMAGE_FILE).split(".")[0].split("/")[-2])
+    NUM = str(IMAGE_FILE.split(".")[0].split("/")[-2])
+    #RUN=os.path.basename(VTX_FILE).split('.')[0].split('-')[2].split('n')[1]
+    #print RUN
+    #SUBRUN=os.path.basename(VTX_FILE).split('.')[0].split('-')[3].split('n')[1]
+    #print SUBRUN
+    #FOUT = os.path.join(OUT_DIR,"multipid_out_%04d_pytorch.root" % NUM)
+    #FOUT = os.path.join(OUT_DIR,"multipid_out_Run%06d_SubRun%06d_pytorch.root" % (int(RUN), int(SUBRUN)))
+    FOUT = os.path.join(OUT_DIR,"multipid_out_%s_WC.root" % (NUM))
     tfile = ROOT.TFile.Open(FOUT,"RECREATE")
     tfile.cd()
     print "OPEN %s"%FOUT
@@ -88,7 +92,7 @@ def main(IMAGE_FILE,VTX_FILE,OUT_DIR,CFG):
 
     iom  = larcv.IOManager(larcv.IOManager.kREAD)
     iom.add_in_file(IMAGE_FILE)
-    iom.add_in_file(VTX_FILE)
+    #iom.add_in_file(VTX_FILE)
     iom.initialize()
 
     for entry in xrange(iom.get_n_entries()):
@@ -226,7 +230,7 @@ def main(IMAGE_FILE,VTX_FILE,OUT_DIR,CFG):
                 rd.proton_int_score_torch[plane] = score_int_v[4]
 
                 continue
-
+                
             tree.Fill()
             rd.reset_vertex()
         
@@ -238,23 +242,21 @@ def main(IMAGE_FILE,VTX_FILE,OUT_DIR,CFG):
 
 if __name__ == '__main__':
     
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 4:
         print
-        print "\tIMAGE_FILE = str(sys.argv[1])"
-        print "\tVTX_FILE   = str(sys.argv[2])"
-        print "\tOUT_DIR    = str(sys.argv[3])"
-        print "\tCFG        = str(sys.argv[4])"
+        print "\tMERGE_FILE = str(sys.argv[1])"
+        print "\tOUT_DIR    = str(sys.argv[2])"
+        print "\tCFG        = str(sys.argv[3])"
         print 
         sys.exit(1)
     
     IMAGE_FILE = str(sys.argv[1]) 
-    VTX_FILE   = str(sys.argv[2])
-    OUT_DIR    = str(sys.argv[3])
-    CFG        = str(sys.argv[4])
+    OUT_DIR    = str(sys.argv[2])
+    CFG        = str(sys.argv[3])
 
     #CFG = os.path.join(BASE_PATH,"cfg","simple_config.cfg")
 
-    main(IMAGE_FILE,VTX_FILE,OUT_DIR,CFG)
+    main(IMAGE_FILE,OUT_DIR,CFG)
     
     print "DONE!"
     sys.exit(0)
