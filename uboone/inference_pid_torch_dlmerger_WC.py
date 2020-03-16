@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #import matplotlib.pyplot as plt
 
 import os, sys, gc
@@ -42,24 +43,21 @@ def image_modify (img, cfg):
 
     return img_arr
 
-def main(IMAGE_FILE,OUT_DIR,CFG):
+def main(IMAGE_FILE,OUT_DIR,CFG,FILEID=0):
     #
     # initialize
     #
     cfg  = config_loader(CFG)
     assert cfg.batch == 1
 
+    print "*********************************"
+    print "INFERENCE PID TORCH DLMERGE WC"
+    print cfg
+    print "*********************************"
+
     rd = ROOTData()
 
-    #NUM = str(os.path.basename(IMAGE_FILE).split(".")[0].split("/")[-2])
-    NUM = str(IMAGE_FILE.split(".")[0].split("/")[-2])
-    #RUN=os.path.basename(VTX_FILE).split('.')[0].split('-')[2].split('n')[1]
-    #print RUN
-    #SUBRUN=os.path.basename(VTX_FILE).split('.')[0].split('-')[3].split('n')[1]
-    #print SUBRUN
-    #FOUT = os.path.join(OUT_DIR,"multipid_out_%04d_pytorch.root" % NUM)
-    #FOUT = os.path.join(OUT_DIR,"multipid_out_Run%06d_SubRun%06d_pytorch.root" % (int(RUN), int(SUBRUN)))
-    FOUT = os.path.join(OUT_DIR,"multipid_out_%s_WC.root" % (NUM))
+    FOUT = os.path.join(OUT_DIR,"multipid_out_%s_WC.root" % (FILEID))
     tfile = ROOT.TFile.Open(FOUT,"RECREATE")
     tfile.cd()
     print "OPEN %s"%FOUT
@@ -78,7 +76,8 @@ def main(IMAGE_FILE,OUT_DIR,CFG):
     weight_file = ""
     plane=2
     exec("weight_file = cfg.weight_file_mpid_%i" % plane)
-#    weight_file= "../weights/mpid_model_20191108-12_41_AM_epoch_29_batch_id_1811_title_LR-3_AG_True_new_modi_GN_changes_in_fullyCY_step_55954.pwf"
+    weight_file = weight_file.replace("__WEIGHT_FOLDER__",os.environ["UBMPIDNET_WEIGHT_DIR"])
+    print "WEIGHT FILE: ",weight_file
     mpid.load_state_dict(torch.load(weight_file, map_location=train_device))
     mpid.eval()
     
