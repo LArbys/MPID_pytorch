@@ -1,0 +1,34 @@
+File    = table
+Product = ubMPIDnet
+
+# ---------------------------------------
+Group:
+
+  Flavor     = NULL
+  Qualifiers = NULL
+
+  Action = DefineFQ
+    envSet(UBMPIDNET_FQ_DIR,${UPS_PROD_DIR})
+
+  Action = GetProducts
+    setupRequired( libtorch v1_0_1 -q e17:prof )
+    setupRequired( dllee_unified v1_0_4 -q e17:prof )
+
+Common:
+  Action = setup
+    setupEnv()
+    prodDir()
+    exeActionRequired(DefineFQ)
+    envSet(MPIDMODEL_DIR,${UBMPIDNET_FQ_DIR})
+
+    # add script folder to python path
+    pathPrepend(PYTHONPATH, ${MPIDMODEL_DIR})
+
+    # define STASH DIR for weights
+    #envSet(UBMPIDNET_WEIGHT_DIR, /pnfs/uboone/persistent/stash/ubdlnetworks/ubSSNet/v0_0_2/NULL/weights)
+    envSet(UBMPIDNET_WEIGHT_DIR, ${UBMPIDNET_FQ_DIR}/weights)
+    
+    # add config and weight dir to FHICL_FILE_PATH
+    pathPrepend(FHICL_FILE_PATH, ${UBMPIDNET_WEIGHT_DIR})
+
+End:
